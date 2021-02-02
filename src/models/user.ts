@@ -1,11 +1,4 @@
-import {
-  Entity,
-  Column,
-  OneToOne,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from "typeorm";
+import { Entity, Column, OneToOne, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import Auditable, { IAuditable, IAuditableMin } from "./auditable";
 import Purchase from "./purchase";
 import Role from "./roles";
@@ -33,10 +26,10 @@ export default class User extends Auditable {
   @Column({ type: "varchar", nullable: true, unique: true })
   taxId?: string;
 
-  @OneToMany((type) => Purchase, (purchase) => purchase.user, {cascade: true})
+  @OneToMany((type) => Purchase, (purchase) => purchase.user, { cascade: true })
   purchases: Purchase[];
 
-  @OneToMany((type) => Role, (role) => role.users, {cascade: true})
+  @OneToMany((type) => Role, (role) => role.users, { cascade: true })
   roles: Role[];
 }
 

@@ -21,10 +21,7 @@ export default class UserServices {
   async getUserById(id: number): Promise<IUserMinimum> {
     const user = await this.repository.findOne(id);
     if (!user) {
-      throw new UserServiceError(
-        `User with id ${id} not found`,
-        StatusCodes.NOT_FOUND
-      );
+      throw new UserServiceError(`User with id ${id} not found`, StatusCodes.NOT_FOUND);
     }
 
     const { password, ...userMin } = user;
@@ -49,34 +46,20 @@ export default class UserServices {
   }
 
   async getUserByUsername(name: string): Promise<IUserMinimum | null> {
-    const user = await this.repository
-      .createQueryBuilder()
-      .select()
-      .where({ username: name })
-      .getOne();
+    const user = await this.repository.createQueryBuilder().select().where({ username: name }).getOne();
 
     if (!user) {
-      throw new UserServiceError(
-        `User with name ${name} not found`,
-        StatusCodes.NOT_FOUND
-      );
+      throw new UserServiceError(`User with name ${name} not found`, StatusCodes.NOT_FOUND);
     }
     const { password, ...userMin } = user;
     return userMin;
   }
 
   async createUser(user: IUserRegister): Promise<IUserMinimum> {
-    const dbUser = await this.repository
-      .createQueryBuilder()
-      .select()
-      .where({ username: user.username })
-      .getOne();
+    const dbUser = await this.repository.createQueryBuilder().select().where({ username: user.username }).getOne();
 
     if (dbUser) {
-      throw new UserServiceError(
-        `Username ${user.username} already exists`,
-        StatusCodes.BAD_REQUEST
-      );
+      throw new UserServiceError(`Username ${user.username} already exists`, StatusCodes.BAD_REQUEST);
     }
 
     const pass = await bcrypt.hash(user.password, 10);
@@ -86,27 +69,14 @@ export default class UserServices {
     return userMin;
   }
 
-  async verifyPasswordAndReturnUser(
-    username: string,
-    password: string
-  ): Promise<IUserMinimum> {
-    const user = await this.repository
-      .createQueryBuilder()
-      .select()
-      .where({ username })
-      .getOne();
+  async verifyPasswordAndReturnUser(username: string, password: string): Promise<IUserMinimum> {
+    const user = await this.repository.createQueryBuilder().select().where({ username }).getOne();
     if (!user) {
-      throw new UserServiceError(
-        `Username ${username} does not exist`,
-        StatusCodes.NOT_FOUND
-      );
+      throw new UserServiceError(`Username ${username} does not exist`, StatusCodes.NOT_FOUND);
     }
     const result = await bcrypt.compare(password, user.password);
     if (!result) {
-      throw new UserServiceError(
-        "Invalid login credentials",
-        StatusCodes.FORBIDDEN
-      );
+      throw new UserServiceError("Invalid login credentials", StatusCodes.FORBIDDEN);
     }
 
     const { password: _, ...userMin } = user;
@@ -116,10 +86,7 @@ export default class UserServices {
   async getFullUserInfoById(id: number): Promise<User> {
     const user = await this.repository.findOne(id);
     if (!user) {
-      throw new UserServiceError(
-        `User with id ${id} not found`,
-        statusCode.NOT_FOUND
-      );
+      throw new UserServiceError(`User with id ${id} not found`, statusCode.NOT_FOUND);
     }
     return user;
   }
@@ -128,10 +95,7 @@ export default class UserServices {
     const newUser = await this.getFullUserInfoById(id);
 
     if (user.email) {
-      throw new UserServiceError(
-        "You cannot change your email",
-        StatusCodes.BAD_REQUEST
-      );
+      throw new UserServiceError("You cannot change your email", StatusCodes.BAD_REQUEST);
     }
     if (user.password) {
       newUser.password = await bcrypt.hash(user.password, 10);
@@ -142,10 +106,7 @@ export default class UserServices {
       newUser.taxId = user.taxId;
     }
     if (user.username) {
-      throw new UserServiceError(
-        "You cannot change your username",
-        StatusCodes.BAD_REQUEST
-      );
+      throw new UserServiceError("You cannot change your username", StatusCodes.BAD_REQUEST);
     }
 
     const { password, ...userMin } = await this.repository.save(newUser);

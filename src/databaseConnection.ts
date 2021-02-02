@@ -5,8 +5,8 @@ import Roles from "./models/roles";
 import Category from "./models/category";
 import Stamp from "./models/stamp";
 import Package from "./models/package";
-import Company from './models/company';
-import Purchase from './models/purchase';
+import Company from "./models/company";
+import Purchase from "./models/purchase";
 
 const entities = [User, Roles, Category, Stamp, Package, Company, Purchase];
 

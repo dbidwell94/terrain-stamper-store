@@ -24,8 +24,7 @@ app.use(async (ctx, next) => {
   try {
     await next();
   } catch (error) {
-    ctx.status =
-      error.statusCode || error.status || httpStatus.INTERNAL_SERVER_ERROR;
+    ctx.status = error.statusCode || error.status || httpStatus.INTERNAL_SERVER_ERROR;
     error.status = ctx.status;
     ctx.body = { error: error.message };
     ctx.app.emit("error", error, ctx);

@@ -43,13 +43,9 @@ router.use(
 
 // Create a new user
 router.post("/register", async (ctx) => {
-  const { email, password, username, taxId } = ctx.request
-    .body as IUserRegister;
+  const { email, password, username, taxId } = ctx.request.body as IUserRegister;
   if (!email || !password || !username) {
-    throw new UserControllerError(
-      "email, password, and username are required fields",
-      StatusCodes.BAD_REQUEST
-    );
+    throw new UserControllerError("email, password, and username are required fields", StatusCodes.BAD_REQUEST);
   }
   const result = await ctx.state.userService.createUser({
     email,
@@ -57,15 +53,7 @@ router.post("/register", async (ctx) => {
     username,
     taxId,
   });
-  const {
-    createdAt,
-    email: _,
-    purchases,
-    roles,
-    updatedAt,
-    taxId: __,
-    ...signMe
-  } = result;
+  const { createdAt, email: _, purchases, roles, updatedAt, taxId: __, ...signMe } = result;
   const token = jwtSerializer.sign(signMe, SECRET);
   ctx.body = { token };
   ctx.status = StatusCodes.CREATED;
@@ -78,10 +66,7 @@ router.post("/login", async (ctx) => {
     password: string;
   };
   if (!password || !username) {
-    throw new UserControllerError(
-      "Username and password are required fields",
-      StatusCodes.BAD_REQUEST
-    );
+    throw new UserControllerError("Username and password are required fields", StatusCodes.BAD_REQUEST);
   }
 
   const {
@@ -92,10 +77,7 @@ router.post("/login", async (ctx) => {
     updatedAt,
     taxId,
     ...signMe
-  } = await ctx.state.userService.verifyPasswordAndReturnUser(
-    username,
-    password
-  );
+  } = await ctx.state.userService.verifyPasswordAndReturnUser(username, password);
 
   const token = jwtSerializer.sign(signMe, SECRET);
 
