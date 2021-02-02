@@ -1,7 +1,7 @@
 import User, { IUserMinimum, IUserRegister } from "../models/user";
-import userRepository from "../repositories/userRepository";
 import statusCode, { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
+import { Repository } from "typeorm";
 
 export class UserServiceError extends Error {
   status: number;
@@ -12,40 +12,34 @@ export class UserServiceError extends Error {
 }
 
 export default class UserServices {
-  async getUserById(
-    id: number,
-    shouldFail = true
-  ): Promise<IUserMinimum | null> {
-    const user = await userRepository.findOne(id);
+  private readonly repository: Repository<User>;
+
+  constructor(userRepository: Repository<User>) {
+    this.repository = userRepository;
+  }
+
+  async getUserById(id: number): Promise<IUserMinimum | null> {
+    const user = await this.repository.findOne(id);
     if (!user) {
-      if (shouldFail) {
-        throw new UserServiceError(
-          `User with id ${id} not found`,
-          StatusCodes.NOT_FOUND
-        );
-      }
-      return null;
+      throw new UserServiceError(
+        `User with id ${id} not found`,
+        StatusCodes.NOT_FOUND
+      );
     }
 
     const { password, ...userMin } = user;
     return userMin;
   }
 
-  async getAllUsers(
-    limit?: number,
-    shouldFail = true
-  ): Promise<IUserMinimum[]> {
-    const users: User[] = await userRepository
+  async getAllUsers(limit?: number): Promise<IUserMinimum[]> {
+    const users: User[] = await this.repository
       .createQueryBuilder()
       .select()
       .limit(limit || 50)
       .getMany();
 
     if (!users || users.length === 0) {
-      if (shouldFail) {
-        throw new UserServiceError("No users available", StatusCodes.NOT_FOUND);
-      }
-      return [];
+      throw new UserServiceError("No users available", StatusCodes.NOT_FOUND);
     }
     const userMin: IUserMinimum[] = users.map((user) => {
       const { password, ...min } = user;
@@ -54,51 +48,56 @@ export default class UserServices {
     return userMin;
   }
 
-  async getUserByUsername(
-    name: string,
-    shouldFail = true
-  ): Promise<IUserMinimum | null> {
-    const user = await userRepository
+  async getUserByUsername(name: string): Promise<IUserMinimum | null> {
+    const user = await this.repository
       .createQueryBuilder()
       .select()
       .where({ username: name })
       .getOne();
 
     if (!user) {
-      if (shouldFail) {
-        throw new UserServiceError(
-          `User with name ${name} not found`,
-          StatusCodes.NOT_FOUND
-        );
-      }
-      return null;
+      throw new UserServiceError(
+        `User with name ${name} not found`,
+        StatusCodes.NOT_FOUND
+      );
     }
     const { password, ...userMin } = user;
     return userMin;
   }
 
   async createUser(user: IUserRegister): Promise<IUserMinimum> {
-    if (this.getUserByUsername(user.username, false)) {
+    const dbUser = await this.repository
+      .createQueryBuilder()
+      .select()
+      .where({ username: user.username })
+      .getOne();
+
+    if (dbUser) {
       throw new UserServiceError(
         `Username ${user.username} already exists`,
         StatusCodes.BAD_REQUEST
       );
     }
+
     const pass = await bcrypt.hash(user.password, 10);
     user.password = pass;
-    const result = await userRepository.save(user);
+    const result = await this.repository.save(user);
     const { password, ...userMin } = result;
     return userMin;
   }
 
   async verifyPasswordAndReturnUser(
-    userId: number,
+    username: string,
     password: string
   ): Promise<IUserMinimum> {
-    const user = await userRepository.findOne(userId);
+    const user = await this.repository
+      .createQueryBuilder()
+      .select()
+      .where({ username })
+      .getOne();
     if (!user) {
       throw new UserServiceError(
-        `User with id ${userId} not found`,
+        `Username ${username} does not exist`,
         StatusCodes.NOT_FOUND
       );
     }

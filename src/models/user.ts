@@ -6,11 +6,11 @@ import {
   ManyToOne,
   OneToMany,
 } from "typeorm";
-import Auditable, { IAuditable } from "./auditable";
+import Auditable, { IAuditable, IAuditableMin } from "./auditable";
 import Purchase from "./purchase";
 import Role from "./roles";
 
-interface IUser extends IAuditable{
+interface IUser {
   username: string;
   password: string;
   email: string;
@@ -24,7 +24,7 @@ export default class User extends Auditable {
   @Column({ type: "varchar", length: 25, nullable: false, unique: true })
   username: string;
 
-  @Column({ type: "varchar", length: 32, nullable: false })
+  @Column({ type: "varchar", nullable: false })
   password: string;
 
   @Column({ type: "varchar", nullable: false, unique: true })
@@ -41,4 +41,4 @@ export default class User extends Auditable {
 }
 
 export type IUserRegister = Omit<IUser, "purchases" | "role">;
-export type IUserMinimum = Omit<IUser, "password">;
+export type IUserMinimum = Omit<IUser, "password"> & IAuditable;

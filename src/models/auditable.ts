@@ -6,6 +6,8 @@ export interface IAuditable {
   updatedAt: Date;
 }
 
+export type IAuditableMin = Omit<IAuditable, "createdAt" | "updatedAt">;
+
 export default abstract class Auditable {
   @PrimaryGeneratedColumn("increment")
   id: number;

@@ -1,14 +1,23 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-
 import koa from "koa";
-import httpStatus from "http-status-codes";
+import httpStatus, { StatusCodes } from "http-status-codes";
 import { Connection } from "typeorm";
 import connection from "./databaseConnection";
+import apiRouter from "./controllers";
+import koaBody from "koa-body";
+import cors from "@koa/cors";
+
+export interface IServerError {
+  message: string,
+  status: StatusCodes
+}
 
 const PORT: number = Number(process.env.PORT) || 1437;
 const app = new koa();
+app.use(koaBody());
+app.use(cors());
 
 // Basic error handling
 app.use(async (ctx, next) => {
@@ -18,17 +27,15 @@ app.use(async (ctx, next) => {
     ctx.status =
       error.statusCode || error.status || httpStatus.INTERNAL_SERVER_ERROR;
     error.status = ctx.status;
-    ctx.body = { error };
+    ctx.body = { error: error.message };
     ctx.app.emit("error", error, ctx);
   }
 });
 
-// Initial route
-app.use(async (ctx) => {
-  ctx.body = "Hello World";
-});
+app.use(apiRouter.routes());
+app.use(apiRouter.allowedMethods());
 
-export let CONNECTION: Connection | null = null;
+export let CONNECTION: Connection;
 
 app.on("error", console.error);
 
