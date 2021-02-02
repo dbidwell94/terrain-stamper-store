@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "serve": "ts-node src/index.ts",
-    "develop": "nodemon"
+    "develop": "nodemon",
+    "postinstall": "husky install"
   },
   "prettier": {
     "trailingComma": "es5",
@@ -51,6 +52,7 @@
     "eslint": "^7.19.0",
     "husky": "^5.0.8",
     "nodemon": "^2.0.7",
+    "pinst": "^2.1.4",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   }
