@@ -2,8 +2,13 @@ import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from "typeorm";
 import User from "./models/user";
 import Roles from "./models/roles";
+import Category from "./models/category";
+import Stamp from "./models/stamp";
+import Package from "./models/package";
+import Company from './models/company';
+import Purchase from './models/purchase';
 
-const entities = [User, Roles];
+const entities = [User, Roles, Category, Stamp, Package, Company, Purchase];
 
 const connectionOptions: ConnectionOptions =
   process.env.NODE_ENV === "development"
@@ -15,7 +20,7 @@ const connectionOptions: ConnectionOptions =
         password: process.env.POSTGRES_PASSWORD || "postgres",
         database: process.env.POSTGRES_DB || "stamp-terrain-store",
         entities,
-        synchronize: true
+        synchronize: true,
       }
     : {
         type: "postgres",
@@ -25,7 +30,7 @@ const connectionOptions: ConnectionOptions =
         synchronize: true,
       };
 
-console.log(connectionOptions)
+console.log(connectionOptions);
 
 const connection: Promise<Connection> = createConnection(connectionOptions);
 export default connection;

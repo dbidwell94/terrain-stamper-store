@@ -9,8 +9,6 @@ services:
       - "5432"
     ports:
       - "5432:5432"
-    environment: 
-      POSTGRES_DB: stamp-terrain-store
     env_file: './.env'
 
   adminer:
@@ -21,4 +19,4 @@ services:
     depends_on: 
       - database
     environment: 
-      ADMINER_DEFAULT_SERVER: database
+      ADMINER_DEFAULT_SERVER: databaseIt
