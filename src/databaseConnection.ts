@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from "typeorm";
 import User from "./models/user";
-import Roles from "./models/roles";
+import Role from "./models/role";
 import Category from "./models/category";
 import Stamp from "./models/stamp";
 import Package from "./models/package";
 import Company from "./models/company";
 import Purchase from "./models/purchase";
 
-const entities = [User, Roles, Category, Stamp, Package, Company, Purchase];
+const entities = [User, Role, Category, Stamp, Package, Company, Purchase];
 
 const connectionOptions: ConnectionOptions =
   process.env.NODE_ENV === "development"
