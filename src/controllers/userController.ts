@@ -2,7 +2,10 @@ import Router from "koa-router";
 import UserService from "../services/userServices";
 import { StatusCodes } from "http-status-codes";
 import { CONNECTION, IServerError } from "../index";
-import User, { IUserRegister } from "../models/user";
+import { SECRET, checkPrivileges } from "../utils";
+import User, { IUserRegister, IUserUpdate } from "../models/user";
+import jwt from "koa-jwt";
+import jwtSerializer from "jsonwebtoken";
 
 class UserControllerError extends Error implements IServerError {
   status: StatusCodes;
@@ -12,8 +15,14 @@ class UserControllerError extends Error implements IServerError {
   }
 }
 
+interface IUserToken {
+  id: number;
+  username: string;
+}
+
 interface IUserController {
   userService: UserService;
+  user: IUserToken;
 }
 
 const router = new Router<IUserController>();
@@ -24,10 +33,16 @@ router.use(async (ctx, next) => {
   await next();
 });
 
+router.use(
+  jwt({ secret: SECRET }).unless({
+    path: [/.*\/login\/?/, /.*\/register\/?/],
+  })
+);
+
 //#region Open Routes
 
 // Create a new user
-router.post("/users", async (ctx) => {
+router.post("/register", async (ctx) => {
   const { email, password, username, taxId } = ctx.request
     .body as IUserRegister;
   if (!email || !password || !username) {
@@ -40,11 +55,23 @@ router.post("/users", async (ctx) => {
     email,
     password,
     username,
+    taxId,
   });
-  ctx.body = result;
+  const {
+    createdAt,
+    email: _,
+    purchases,
+    roles,
+    updatedAt,
+    taxId: __,
+    ...signMe
+  } = result;
+  const token = jwtSerializer.sign(signMe, SECRET);
+  ctx.body = { token };
   ctx.status = StatusCodes.CREATED;
 });
 
+// Log user in
 router.post("/login", async (ctx) => {
   const { password, username } = ctx.request.body as {
     username: string;
@@ -57,12 +84,22 @@ router.post("/login", async (ctx) => {
     );
   }
 
-  const result = await ctx.state.userService.verifyPasswordAndReturnUser(
+  const {
+    createdAt,
+    email,
+    purchases,
+    roles,
+    updatedAt,
+    taxId,
+    ...signMe
+  } = await ctx.state.userService.verifyPasswordAndReturnUser(
     username,
     password
   );
 
-  ctx.body = result;
+  const token = jwtSerializer.sign(signMe, SECRET);
+
+  ctx.body = { token };
   ctx.status = StatusCodes.OK;
 });
 
@@ -73,6 +110,34 @@ router.get("/users", async (ctx) => {
   const users = await ctx.state.userService.getAllUsers();
   ctx.status = StatusCodes.ACCEPTED;
   ctx.body = users;
+});
+
+router.get("/user/:id", async (ctx) => {
+  const { id } = ctx.params;
+  const response = await ctx.state.userService.getUserById(id);
+  ctx.body = response;
+  ctx.status = StatusCodes.OK;
+});
+
+router.put("/user/:id", async (ctx) => {
+  const { id: userId } = ctx.params;
+  const { id } = ctx.state.user;
+  const userMin = ctx.request.body as IUserUpdate;
+  if (
+    !(await checkPrivileges({
+      paramId: userId,
+      tokenId: id,
+      userService: ctx.state.userService,
+    }))
+  ) {
+    throw new UserControllerError(
+      "You do not have sufficient permissions to access this resource",
+      StatusCodes.FORBIDDEN
+    );
+  }
+  const response = await ctx.state.userService.updateUser(userMin, userId);
+  ctx.body = response;
+  ctx.status = StatusCodes.ACCEPTED;
 });
 
 export default router;

@@ -1,4 +1,4 @@
-import User, { IUserMinimum, IUserRegister } from "../models/user";
+import User, { IUserMinimum, IUserRegister, IUserUpdate } from "../models/user";
 import statusCode, { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import { Repository } from "typeorm";
@@ -18,7 +18,7 @@ export default class UserServices {
     this.repository = userRepository;
   }
 
-  async getUserById(id: number): Promise<IUserMinimum | null> {
+  async getUserById(id: number): Promise<IUserMinimum> {
     const user = await this.repository.findOne(id);
     if (!user) {
       throw new UserServiceError(
@@ -110,6 +110,45 @@ export default class UserServices {
     }
 
     const { password: _, ...userMin } = user;
+    return userMin;
+  }
+
+  async getFullUserInfoById(id: number): Promise<User> {
+    const user = await this.repository.findOne(id);
+    if (!user) {
+      throw new UserServiceError(
+        `User with id ${id} not found`,
+        statusCode.NOT_FOUND
+      );
+    }
+    return user;
+  }
+
+  async updateUser(user: IUserUpdate, id: number): Promise<IUserMinimum> {
+    const newUser = await this.getFullUserInfoById(id);
+
+    if (user.email) {
+      throw new UserServiceError(
+        "You cannot change your email",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+    if (user.password) {
+      newUser.password = await bcrypt.hash(user.password, 10);
+    }
+    if (user.roles && user.roles.length > 0) {
+    }
+    if (user.taxId) {
+      newUser.taxId = user.taxId;
+    }
+    if (user.username) {
+      throw new UserServiceError(
+        "You cannot change your username",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    const { password, ...userMin } = await this.repository.save(newUser);
     return userMin;
   }
 }

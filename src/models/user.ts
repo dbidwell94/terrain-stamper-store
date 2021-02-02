@@ -16,7 +16,7 @@ interface IUser {
   email: string;
   taxId?: string;
   purchases: Purchase[];
-  role: Role[];
+  roles: Role[];
 }
 
 @Entity()
@@ -33,12 +33,13 @@ export default class User extends Auditable {
   @Column({ type: "varchar", nullable: true, unique: true })
   taxId?: string;
 
-  @OneToMany((type) => Purchase, (purchase) => purchase.user)
+  @OneToMany((type) => Purchase, (purchase) => purchase.user, {cascade: true})
   purchases: Purchase[];
 
-  @ManyToOne((type) => Role, (role) => role.users)
-  role: Role[];
+  @OneToMany((type) => Role, (role) => role.users, {cascade: true})
+  roles: Role[];
 }
 
-export type IUserRegister = Omit<IUser, "purchases" | "role">;
+export type IUserRegister = Omit<IUser, "purchases" | "roles">;
 export type IUserMinimum = Omit<IUser, "password"> & IAuditable;
+export type IUserUpdate = Omit<IUser, "purchases">;

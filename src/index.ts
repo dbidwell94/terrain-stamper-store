@@ -10,8 +10,8 @@ import koaBody from "koa-body";
 import cors from "@koa/cors";
 
 export interface IServerError {
-  message: string,
-  status: StatusCodes
+  message: string;
+  status: StatusCodes;
 }
 
 const PORT: number = Number(process.env.PORT) || 1437;
