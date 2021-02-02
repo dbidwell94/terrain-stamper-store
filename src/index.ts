@@ -1,8 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+
 import koa from "koa";
 import httpStatus from "http-status-codes";
-import dotenv from "dotenv";
+import { Connection } from "typeorm";
+import connection from "./databaseConnection";
 
-dotenv.config();
 const PORT: number = Number(process.env.PORT) || 1437;
 const app = new koa();
 
@@ -24,6 +28,14 @@ app.use(async (ctx) => {
   ctx.body = "Hello World";
 });
 
+export let CONNECTION: Connection | null = null;
+
 app.on("error", console.error);
 
-app.listen(PORT);
+connection
+  .then((con) => {
+    CONNECTION = con;
+    Object.freeze(CONNECTION);
+    app.listen(PORT);
+  })
+  .catch(console.error);

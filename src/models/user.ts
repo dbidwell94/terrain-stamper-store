@@ -1,5 +1,6 @@
-import { Entity, Column, OneToOne, JoinColumn } from "typeorm";
+import { Entity, Column, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import Auditable from "./auditable";
+import Role from "./roles";
 
 @Entity()
 export default class User extends Auditable {
@@ -23,4 +24,7 @@ export default class User extends Auditable {
 
   @Column({ type: "varchar", nullable: true })
   company?: string;
+
+  @ManyToOne(type => Role, role => role.users)
+  role: Role[]
 }
