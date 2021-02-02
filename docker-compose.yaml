@@ -19,4 +19,4 @@ services:
     depends_on: 
       - database
     environment: 
-      ADMINER_DEFAULT_SERVER: databaseIt
+      ADMINER_DEFAULT_SERVER: database
