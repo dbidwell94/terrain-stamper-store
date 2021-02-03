@@ -1,4 +1,4 @@
-import User, { IUserMinimum, IUserRegister, IUserUpdate } from "../models/user";
+import User, { IUserMinimum, IUserRegister, IUserUpdate } from "models/user";
 import statusCode, { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import { Repository } from "typeorm";

@@ -5,7 +5,7 @@ import koa from "koa";
 import httpStatus, { StatusCodes } from "http-status-codes";
 import { Connection } from "typeorm";
 import connection from "./databaseConnection";
-import apiRouter from "./controllers";
+import apiRouter from "controllers/index";
 import koaBody from "koa-body";
 import cors from "@koa/cors";
 

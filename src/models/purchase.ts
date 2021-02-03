@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne } from "typeorm";
-import Auditable from "./auditable";
-import Stamp from "./stamp";
-import User from "./user";
+import Auditable from "models/auditable";
+import Stamp from "models/stamp";
+import User from "models/user";
 
 @Entity()
 export default class Purchase extends Auditable {

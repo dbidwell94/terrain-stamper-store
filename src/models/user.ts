@@ -1,7 +1,7 @@
-import { Entity, Column, OneToOne, JoinColumn, ManyToOne, OneToMany } from "typeorm";
-import Auditable, { IAuditable, IAuditableMin } from "./auditable";
-import Purchase from "./purchase";
-import Role from "./role";
+import { Entity, Column, OneToMany } from "typeorm";
+import Auditable, { IAuditable } from "models/auditable";
+import Purchase from "models/purchase";
+import Role from "models/role";
 
 interface IUser {
   username: string;

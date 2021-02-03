@@ -1,9 +1,9 @@
 import Router from "koa-router";
-import UserService from "../services/userServices";
+import UserService from "services/userServices";
 import { StatusCodes } from "http-status-codes";
-import { CONNECTION, IServerError } from "../index";
-import { SECRET, checkPrivileges } from "../utils";
-import User, { IUserRegister, IUserUpdate } from "../models/user";
+import { CONNECTION, IServerError } from "src/index";
+import { SECRET, checkPrivileges } from "utils/index";
+import User, { IUserRegister, IUserUpdate } from "models/user";
 import jwt from "koa-jwt";
 import jwtSerializer from "jsonwebtoken";
 

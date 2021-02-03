@@ -1,5 +1,5 @@
 import { Entity, Column } from "typeorm";
-import Auditable from "./auditable";
+import Auditable from "models/auditable";
 
 @Entity()
 export default class Company extends Auditable {

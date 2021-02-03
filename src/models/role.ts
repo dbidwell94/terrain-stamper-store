@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany } from "typeorm";
-import Auditable from "./auditable";
-import User from "./user";
+import Auditable from "models/auditable";
+import User from "models/user";
 
 export enum validRoles {
   ADMIN = "ADMIN",

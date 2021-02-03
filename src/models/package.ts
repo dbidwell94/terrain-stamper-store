@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany } from "typeorm";
-import Auditable from "./auditable";
-import Stamp from "./stamp";
+import Auditable from "models/auditable";
+import Stamp from "models/stamp";
 
 @Entity()
 export default class Package extends Auditable {

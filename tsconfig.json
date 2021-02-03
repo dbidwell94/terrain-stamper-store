@@ -7,8 +7,25 @@
     "skipLibCheck": true,                     
     "forceConsistentCasingInFileNames": true,
     "lib": ["ES2017"],
-    "outDir": "dist",
-    "rootDir": "src",
+    "outDir": "./dist",
+    "rootDir": ".",
+    "paths": {
+      "controllers/*": [
+        "./src/controllers/*"
+      ],
+      "models/*": [
+        "./src/models/*"
+      ],
+      "utils/*": [
+        "./src/utils/*"
+      ],
+      "services/*": [
+        "./src/services/*"
+      ],
+      "src/*": [
+        "./src/*"
+      ]
+    },
     "emitDecoratorMetadata": true,
     "noImplicitAny": true,
     "experimentalDecorators": true,

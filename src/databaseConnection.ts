@@ -1,16 +1,16 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from "typeorm";
-import User from "./models/user";
-import Role from "./models/role";
-import Category from "./models/category";
-import Stamp from "./models/stamp";
-import Package from "./models/package";
-import Company from "./models/company";
-import Purchase from "./models/purchase";
+import User from "models/user";
+import Role from "models/role";
+import Category from "models/category";
+import Stamp from "models/stamp";
+import Package from "models/package";
+import Company from "models/company";
+import Purchase from "models/purchase";
 
 const entities = [User, Role, Category, Stamp, Package, Company, Purchase];
 
-const connectionOptions: ConnectionOptions =
+export const connectionOptions: ConnectionOptions =
   process.env.NODE_ENV === "development"
     ? {
         type: "postgres",
@@ -21,13 +21,22 @@ const connectionOptions: ConnectionOptions =
         database: process.env.POSTGRES_DB || "stamp-terrain-store",
         entities,
         synchronize: true,
+        migrations: ["src/migrations/**/*.ts"],
+        cli: {
+          migrationsDir: "src/migrations",
+          entitiesDir: "src/models",
+        },
       }
     : {
         type: "postgres",
         url: process.env.DB_URL,
         name: "default",
         entities,
-        synchronize: true,
+        migrations: ["./migrations/*.ts"],
+        synchronize: false,
+        cli: {
+          migrationsDir: "src/migrations",
+        },
       };
 
 console.log(connectionOptions);
