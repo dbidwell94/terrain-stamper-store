@@ -13,10 +13,11 @@ export default class Category extends Auditable implements IModel {
   @Column({ type: "varchar", nullable: false, unique: true })
   name: string;
 
-  @ManyToMany(() => Stamp, (stamp) => stamp.category, {
+  @ManyToMany(() => Stamp, (stamp) => stamp.categories, {
     cascade: ["insert", "update"],
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
+    eager: true
   })
   stamps: Promise<Stamp[]>;
 }

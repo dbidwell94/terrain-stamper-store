@@ -5,7 +5,7 @@ import Role from "./role";
 import { IModel } from ".";
 import Stamp from "./stamp";
 
-interface IUser {
+interface IUser extends IAuditable {
   username: string;
   password: string;
   email: string;
@@ -31,38 +31,55 @@ export default class User extends Auditable implements IModel {
   @OneToMany(() => Purchase, (purchase) => purchase.user, {
     cascade: ["update", "insert"],
     onDelete: "SET NULL",
-    onUpdate: "CASCADE",
-  })
-  purchases: Promise<Purchase[]>;
+    onUpdate: "CASCADE"
+})
+  purchases: Purchase[];
 
   @OneToMany(() => Stamp, (stamp) => stamp.uploadedUser, {
     cascade: ["update", "insert"],
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
   })
-  uploadedStamps: Promise<Stamp[]>;
+  uploadedStamps: Stamp[];
 
   @ManyToMany(() => Role, (role) => role.users, {
     cascade: ["update", "insert"],
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
+    eager: true
   })
-  @JoinTable()
-  roles: Promise<Role[]>;
+  @JoinTable({ name: "userRoles" })
+  roles: Role[];
 }
 
-export async function getUserMinimum(user: User) {
-  const roles = await Promise.resolve(user.roles);
+export function getUserMinimum(user: User): IUserMinimum {
   return {
     id: user.id,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     username: user.username,
     email: user.email,
-    roles,
+    roles: user.roles
   };
 }
 
-export type IUserRegister = Omit<IUser, "purchases">;
+export function getUser(user: User): IUser {
+  return {
+    id: user.id,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    username: user.username,
+    email: user.email,
+    password: user.password,
+    taxId: user.taxId,
+    purchases: user.purchases,
+    roles: user.roles,
+  };
+}
+
+export type IUserRegister = Omit<IUser, "purchases" | "createdAt" | "id" | "updatedAt">;
 export type IUserMinimum = Omit<IUser, "password" | "purchases"> & IAuditable;
 export type IUserUpdate = Omit<IUser, "purchases">;
+export type IUserSave = Omit<IUserRegister, "roles"> & {
+  roles: Promise<Role[]>;
+};

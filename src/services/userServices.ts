@@ -1,4 +1,4 @@
-import User, { IUserMinimum, IUserRegister, IUserUpdate, getUserMinimum } from "models/user";
+import User, { IUserMinimum, IUserRegister, IUserUpdate, IUserSave, getUserMinimum } from "models/user";
 import statusCode, { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import { Repository } from "typeorm";
@@ -22,26 +22,25 @@ export default class UserServices {
   }
 
   async getUserById(id: number): Promise<IUserMinimum> {
-    const user = await this.repository.findOne(id);
+    const user = await this.repository.findOne(id, { relations: ["role", "purchase", "stamp"] });
 
     if (!user) {
       throw new UserServiceError(`User with id ${id} not found`, StatusCodes.NOT_FOUND);
     }
 
-    return await getUserMinimum(user);
+    return getUserMinimum(user);
   }
 
   async getAllUsers(limit?: number): Promise<IUserMinimum[]> {
-    const users: User[] = await this.repository
-      .createQueryBuilder()
-      .select()
-      .limit(limit || 50)
-      .getMany();
+    const users: User[] = await this.repository.find({
+      order: { id: "ASC" },
+      take: limit || 50,
+    });
 
     if (!users || users.length === 0) {
       throw new UserServiceError("No users available", StatusCodes.NOT_FOUND);
     }
-    const userMin = await Promise.all(users.map(async (user) => await getUserMinimum(user)));
+    const userMin = users.map((user) => getUserMinimum(user));
 
     return userMin;
   }
@@ -53,7 +52,7 @@ export default class UserServices {
       throw new UserServiceError(`User with name ${name} not found`, StatusCodes.NOT_FOUND);
     }
 
-    return await getUserMinimum(user);
+    return getUserMinimum(user);
   }
 
   async createUser(user: IUserRegister): Promise<IUserMinimum> {
@@ -81,8 +80,10 @@ export default class UserServices {
 
     const pass = await bcrypt.hash(user.password, 10);
     user.password = pass;
-    const result = await this.repository.save((user as any) as User);
-    return await getUserMinimum(result);
+
+    const result = await this.repository.save(user);
+    console.log(result);
+    return getUserMinimum(result);
   }
 
   async verifyPasswordAndReturnUser(username: string, password: string): Promise<IUserMinimum> {
@@ -95,7 +96,7 @@ export default class UserServices {
       throw new UserServiceError("Invalid login credentials", StatusCodes.FORBIDDEN);
     }
 
-    return await getUserMinimum(user);
+    return getUserMinimum(user);
   }
 
   async getFullUserInfoById(id: number): Promise<User> {
@@ -125,6 +126,6 @@ export default class UserServices {
     }
 
     const updated = await this.repository.save(newUser);
-    return await getUserMinimum(updated);
+    return getUserMinimum(updated);
   }
 }

@@ -3,7 +3,7 @@ import Auditable, { IAuditable } from "./auditable";
 import Stamp from "./stamp";
 import { IModel } from ".";
 
-interface IPackage extends IAuditable {
+export interface IPackage extends IAuditable {
   name: string;
   stamps: Stamp[];
 }
@@ -17,6 +17,7 @@ export default class Package extends Auditable implements IModel {
     cascade: ["update", "insert"],
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
+    eager: true
   })
   stamps: Promise<Stamp[]>;
 }

@@ -4,7 +4,7 @@ import Stamp from "./stamp";
 import User from "./user";
 import { IModel } from ".";
 
-interface IPurchase extends IAuditable {
+export interface IPurchase extends IAuditable {
   user: User;
   stamp: Stamp;
   paymentId: string;
@@ -17,6 +17,7 @@ export default class Purchase extends Auditable implements IModel {
     onDelete: "SET NULL",
     nullable: false,
     onUpdate: "CASCADE",
+    eager: true
   })
   user: Promise<User>;
 
@@ -25,6 +26,7 @@ export default class Purchase extends Auditable implements IModel {
     onDelete: "SET NULL",
     nullable: false,
     onUpdate: "CASCADE",
+    eager: true
   })
   stamp: Promise<Stamp>;
 
