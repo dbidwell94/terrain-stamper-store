@@ -27,16 +27,5 @@ export default class Role extends Auditable implements IModel {
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
   })
-  users: Promise<User[]>;
-}
-
-export async function getRole(role: Role): Promise<IRole> {
-  const users = await role.users;
-  return {
-    createdAt: role.createdAt,
-    id: role.id,
-    roleName: role.roleName,
-    updatedAt: role.updatedAt,
-    users,
-  };
+  users: User[];
 }

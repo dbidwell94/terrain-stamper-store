@@ -38,10 +38,10 @@ export default class Stamp extends Auditable implements IModel {
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
     nullable: false,
-    eager: true
+    eager: true,
   })
   @JoinColumn()
-  uploadedUser: Promise<User>;
+  uploadedUser: User;
 
   @ManyToMany(() => Category, (category) => category.stamps, {
     cascade: true,
@@ -49,46 +49,33 @@ export default class Stamp extends Auditable implements IModel {
     onUpdate: "CASCADE",
   })
   @JoinTable({ name: "stampCategories" })
-  categories: Promise<Category[]>;
+  categories: Category[];
 
   @OneToMany(() => Purchase, (purchase) => purchase.stamp, {
     cascade: ["insert", "update"],
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
   })
-  purchases: Promise<Purchase[]>;
+  purchases: Purchase[];
 
   @ManyToOne(() => Package, (pkg) => pkg.stamps, {
     cascade: true,
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
     nullable: true,
+    eager: true,
   })
-  package?: Promise<Package>;
+  package?: Package;
 }
-
-export async function getStamp(stamp: Stamp): Promise<IStamp> {
-  const uploadedUser = await stamp.uploadedUser;
-  const categories = await stamp.categories;
-  const purchases = await stamp.purchases;
-  const pkg = await stamp.package;
+export function getStampMin(stamp: Stamp): IStampMin {
   return {
     id: stamp.id,
     createdAt: stamp.createdAt,
     updatedAt: stamp.updatedAt,
     name: stamp.name,
-    locationUrl: stamp.locationUrl,
     price: stamp.price,
     stampType: stamp.stampType,
-    uploadedUser,
-    categories,
-    purchases,
-    package: pkg,
+    categories: stamp.categories,
+    uploadedUser: stamp.uploadedUser,
   };
-}
-
-export async function getStampMin(stamp: Stamp): Promise<IStampMin> {
-  const fullStamp = await getStamp(stamp);
-  const { purchases, locationUrl, ...stampMin } = fullStamp;
-  return stampMin;
 }

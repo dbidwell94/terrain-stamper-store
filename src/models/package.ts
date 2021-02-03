@@ -19,16 +19,5 @@ export default class Package extends Auditable implements IModel {
     onUpdate: "CASCADE",
     eager: true
   })
-  stamps: Promise<Stamp[]>;
-}
-
-export async function getPackage(pkg: Package): Promise<IPackage> {
-  const stamps = await pkg.stamps;
-  return {
-    id: pkg.id,
-    createdAt: pkg.createdAt,
-    updatedAt: pkg.updatedAt,
-    name: pkg.name,
-    stamps,
-  };
+  stamps: Stamp[];
 }

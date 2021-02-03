@@ -63,20 +63,6 @@ export function getUserMinimum(user: User): IUserMinimum {
   };
 }
 
-export function getUser(user: User): IUser {
-  return {
-    id: user.id,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-    username: user.username,
-    email: user.email,
-    password: user.password,
-    taxId: user.taxId,
-    purchases: user.purchases,
-    roles: user.roles,
-  };
-}
-
 export type IUserRegister = Omit<IUser, "purchases" | "createdAt" | "id" | "updatedAt">;
 export type IUserMinimum = Omit<IUser, "password" | "purchases"> & IAuditable;
 export type IUserUpdate = Omit<IUser, "purchases">;
