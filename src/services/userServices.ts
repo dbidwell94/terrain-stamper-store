@@ -5,24 +5,13 @@ import { Repository } from "typeorm";
 import RoleServices from "./roleServices";
 import { CONNECTION } from "..";
 import Role, { validRoles } from "models/role";
+import { AbstractService, AbstractServiceError } from ".";
 
-export class UserServiceError extends Error {
-  status: number;
-  constructor(message: string, status?: StatusCodes) {
-    super(message);
-    this.status = status || statusCode.INTERNAL_SERVER_ERROR;
-  }
-}
+export class UserServiceError extends AbstractServiceError {}
 
-export default class UserServices {
-  private readonly repository: Repository<User>;
-
-  constructor(userRepository: Repository<User>) {
-    this.repository = userRepository;
-  }
-
-  async getUserById(id: number): Promise<IUserMinimum> {
-    const user = await this.repository.findOne(id, { relations: ["role", "purchase", "stamp"] });
+export default class UserServices extends AbstractService<User> {
+  async getUserMinById(id: number): Promise<IUserMinimum> {
+    const user = await this.repository.findOne(id);
 
     if (!user) {
       throw new UserServiceError(`User with id ${id} not found`, StatusCodes.NOT_FOUND);
@@ -31,7 +20,7 @@ export default class UserServices {
     return getUserMinimum(user);
   }
 
-  async getAllUsers(limit?: number): Promise<IUserMinimum[]> {
+  async getAllUserMins(limit?: number): Promise<IUserMinimum[]> {
     const users: User[] = await this.repository.find({
       order: { id: "ASC" },
       take: limit || 50,

@@ -63,7 +63,6 @@ export default class Stamp extends Auditable implements IModel {
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
     nullable: true,
-    eager: true,
   })
   package?: Package;
 }

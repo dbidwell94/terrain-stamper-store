@@ -29,7 +29,7 @@ const router = new Router<IUserController>();
 
 // Inject the user repository into the context to use in routes
 router.use(async (ctx, next) => {
-  ctx.state.userService = new UserService(CONNECTION.getRepository(User));
+  ctx.state.userService = new UserService(CONNECTION.getRepository(User), User);
   await next();
 });
 
@@ -88,14 +88,14 @@ router.post("/login", async (ctx) => {
 
 // Get all users
 router.get("/users", async (ctx) => {
-  const users = await ctx.state.userService.getAllUsers();
+  const users = await ctx.state.userService.getAllUserMins();
   ctx.status = StatusCodes.ACCEPTED;
   ctx.body = users;
 });
 
 router.get("/user/:id", async (ctx) => {
   const { id } = ctx.params;
-  const response = await ctx.state.userService.getUserById(id);
+  const response = await ctx.state.userService.getUserMinById(id);
   ctx.body = response;
   ctx.status = StatusCodes.OK;
 });
