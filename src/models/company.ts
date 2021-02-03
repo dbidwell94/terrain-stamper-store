@@ -1,8 +1,9 @@
-import { Entity, Column } from "typeorm";
-import Auditable from "models/auditable";
+import { Entity, Column,  } from "typeorm";
+import Auditable from "./auditable";
+import { IModel } from ".";
 
 @Entity()
-export default class Company extends Auditable {
+export default class Company extends Auditable implements IModel{
   @Column({ type: "varchar", nullable: false, unique: true })
   name: string;
 

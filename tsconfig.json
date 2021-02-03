@@ -9,6 +9,7 @@
     "lib": ["ES2017"],
     "outDir": "./dist",
     "rootDir": ".",
+    "baseUrl": "./",
     "paths": {
       "controllers/*": [
         "./src/controllers/*"
@@ -30,6 +31,6 @@
     "noImplicitAny": true,
     "experimentalDecorators": true,
     "preserveConstEnums": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
   }
 }

@@ -15,6 +15,6 @@ export async function checkPrivileges(options: {
   const { tokenId, paramId, userService } = options;
 
   const userToCheck = await userService.getFullUserInfoById(tokenId);
-  const adminRole = userToCheck.roles?.find((role) => role.roleName === validRoles.ADMIN);
+  const adminRole = (await userToCheck.roles).find((role) => role.roleName === validRoles.ADMIN);
   return adminRole !== undefined || adminRole !== null || paramId === tokenId;
 }

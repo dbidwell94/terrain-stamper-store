@@ -1,11 +1,13 @@
-import { Entity, Column, ManyToMany, ManyToOne, OneToMany } from "typeorm";
-import Auditable from "models/auditable";
-import Category from "models/category";
-import Package from "models/package";
-import Purchase from "models/purchase";
+import { Entity, Column, ManyToMany, ManyToOne, OneToMany, JoinTable, JoinColumn } from "typeorm";
+import Auditable from "./auditable";
+import Category from "./category";
+import Package from "./package";
+import Purchase from "./purchase";
+import { IModel } from ".";
+import User from "./user";
 
 @Entity()
-export default class Stamp extends Auditable {
+export default class Stamp extends Auditable implements IModel {
   @Column({ type: "varchar", nullable: false })
   name: string;
 
@@ -18,12 +20,30 @@ export default class Stamp extends Auditable {
   @Column({ type: "decimal", nullable: true })
   price?: number;
 
-  @ManyToMany((type) => Category, (category) => category.stamps)
-  category: Category;
+  @ManyToOne(() => User, (user) => user.uploadedStamps, {
+    cascade: true,
+    onDelete: "SET NULL",
+    onUpdate: "CASCADE",
+    nullable: false,
+  })
+  @JoinColumn()
+  uploadedUser: Promise<User>;
 
-  @OneToMany((type) => Purchase, (purchase) => purchase.stamp)
-  purchases: Purchase[];
+  @ManyToMany(() => Category, (category) => category.stamps, {
+    cascade: true,
+    onDelete: "SET NULL",
+    onUpdate: "CASCADE",
+  })
+  @JoinTable()
+  category: Promise<Category[]>;
 
-  @ManyToOne((type) => Package, (pkg) => pkg.stamps)
-  package: Package;
+  @OneToMany(() => Purchase, (purchase) => purchase.stamp, {
+    cascade: ["insert", "update"],
+    onDelete: "SET NULL",
+    onUpdate: "CASCADE",
+  })
+  purchases: Promise<Purchase[]>;
+
+  @ManyToOne(() => Package, (pkg) => pkg.stamps, { cascade: true, onDelete: "SET NULL", onUpdate: "CASCADE" })
+  package: Promise<Package>;
 }

@@ -1,12 +1,33 @@
 import { Entity, Column, ManyToMany } from "typeorm";
-import Auditable from "models/auditable";
-import Stamp from "models/stamp";
+import Auditable, { IAuditable } from "./auditable";
+import Stamp from "./stamp";
+import { IModel } from ".";
+
+interface ICategory extends IAuditable {
+  name: string;
+  stamps: Stamp[];
+}
 
 @Entity()
-export default class Category extends Auditable {
+export default class Category extends Auditable implements IModel {
   @Column({ type: "varchar", nullable: false, unique: true })
   name: string;
 
-  @ManyToMany((type) => Stamp, (stamp) => stamp.category)
-  stamps: Stamp[];
+  @ManyToMany(() => Stamp, (stamp) => stamp.category, {
+    cascade: ["insert", "update"],
+    onDelete: "SET NULL",
+    onUpdate: "CASCADE",
+  })
+  stamps: Promise<Stamp[]>;
+}
+
+export async function getCategory(category: Category): Promise<ICategory> {
+  const stamps = await category.stamps;
+  return {
+    id: category.id,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+    name: category.name,
+    stamps,
+  };
 }

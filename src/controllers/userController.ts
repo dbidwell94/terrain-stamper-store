@@ -43,7 +43,7 @@ router.use(
 
 // Create a new user
 router.post("/register", async (ctx) => {
-  const { email, password, username, taxId } = ctx.request.body as IUserRegister;
+  const { email, password, username, taxId, roles: requestedRoles } = ctx.request.body as IUserRegister;
   if (!email || !password || !username) {
     throw new UserControllerError("email, password, and username are required fields", StatusCodes.BAD_REQUEST);
   }
@@ -52,9 +52,9 @@ router.post("/register", async (ctx) => {
     password,
     username,
     taxId,
+    roles: requestedRoles,
   });
-  const { createdAt, email: _, purchases, roles, updatedAt, taxId: __, ...signMe } = result;
-  const token = jwtSerializer.sign(signMe, SECRET);
+  const token = jwtSerializer.sign({ id: result.id, username: result.username }, SECRET);
   ctx.body = { token };
   ctx.status = StatusCodes.CREATED;
 });
@@ -72,7 +72,6 @@ router.post("/login", async (ctx) => {
   const {
     createdAt,
     email,
-    purchases,
     roles,
     updatedAt,
     taxId,

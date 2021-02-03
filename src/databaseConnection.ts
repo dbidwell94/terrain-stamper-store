@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from "typeorm";
-import User from "models/user";
-import Role from "models/role";
-import Category from "models/category";
-import Stamp from "models/stamp";
-import Package from "models/package";
-import Company from "models/company";
-import Purchase from "models/purchase";
+import User from "../src/models/user";
+import Role from "../src/models/role";
+import Category from "../src/models/category";
+import Stamp from "../src/models/stamp";
+import Package from "../src/models/package";
+import Company from "../src/models/company";
+import Purchase from "../src/models/purchase";
 
 const entities = [User, Role, Category, Stamp, Package, Company, Purchase];
 
@@ -20,7 +20,7 @@ export const connectionOptions: ConnectionOptions =
         password: process.env.POSTGRES_PASSWORD || "postgres",
         database: process.env.POSTGRES_DB || "stamp-terrain-store",
         entities,
-        synchronize: true,
+        // synchronize: true,
         migrations: ["src/migrations/**/*.ts"],
         cli: {
           migrationsDir: "src/migrations",

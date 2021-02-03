@@ -1,4 +1,4 @@
-import { Column, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeUpdate, Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export interface IAuditable {
   id: number;
@@ -12,9 +12,14 @@ export default abstract class Auditable {
   @PrimaryGeneratedColumn("increment")
   id: number;
 
-  @Column({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
+  @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeUpdate()
+  private onUpdate() {
+    this.updatedAt = new Date(Date.now());
+  }
 }
