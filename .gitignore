@@ -114,3 +114,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# custom docker shit server_data pgdata
+
+server_data/
+pgdata/

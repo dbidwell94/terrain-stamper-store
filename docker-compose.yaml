@@ -3,6 +3,7 @@ version: '3'
 services: 
 
   database:
+    container_name: database
     image: postgres:latest
     restart: always
     expose: 
@@ -10,8 +11,11 @@ services:
     ports:
       - "5432:5432"
     env_file: './.env'
+    volumes: 
+      - ./pgdata:/var/lib/postgresql/data
 
   adminer:
+    container_name: adminer
     image: adminer:latest
     restart: always
     ports:
@@ -20,3 +24,15 @@ services:
       - database
     environment: 
       ADMINER_DEFAULT_SERVER: database
+
+  web:
+    container_name: web
+    build: .
+    ports: 
+      - "80:1437"
+    env_file: "prod.env"
+    restart: always
+    volumes: 
+      - ./server_data:/usr/src/app/assets
+    depends_on: 
+      - database

@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { StatusCodes } from "http-status-codes";
-import { IModel } from "models/index";
+import { IModel } from "../models/index";
 
 export interface IService<T> {
   getById(id: number): Promise<T>;

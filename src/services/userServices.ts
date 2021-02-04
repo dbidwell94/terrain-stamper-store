@@ -1,10 +1,10 @@
-import User, { IUserMinimum, IUserRegister, IUserUpdate, IUserSave, getUserMinimum } from "models/user";
+import User, { IUserMinimum, IUserRegister, IUserUpdate, IUserSave, getUserMinimum } from "../models/user";
 import statusCode, { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import { Repository } from "typeorm";
 import RoleServices from "./roleServices";
 import { CONNECTION } from "..";
-import Role, { validRoles } from "models/role";
+import Role, { validRoles } from "../models/role";
 import { AbstractService, AbstractServiceError } from ".";
 
 export class UserServiceError extends AbstractServiceError {}
@@ -71,7 +71,6 @@ export default class UserServices extends AbstractService<User> {
     user.password = pass;
 
     const result = await this.repository.save(user);
-    console.log(result);
     return getUserMinimum(result);
   }
 

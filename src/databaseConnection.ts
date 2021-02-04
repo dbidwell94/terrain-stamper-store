@@ -20,7 +20,7 @@ export const connectionOptions: ConnectionOptions =
         password: process.env.POSTGRES_PASSWORD || "postgres",
         database: process.env.POSTGRES_DB || "stamp-terrain-store",
         entities,
-        // synchronize: true,
+        synchronize: false,
         migrations: ["src/migrations/**/*.ts"],
         cli: {
           migrationsDir: "src/migrations",
@@ -29,17 +29,19 @@ export const connectionOptions: ConnectionOptions =
       }
     : {
         type: "postgres",
-        url: process.env.DB_URL,
-        name: "default",
+        host: "database",
+        port: Number(process.env.DB_PORT) || 5432,
+        username: process.env.POSTGRES_USER || "postgres",
+        password: process.env.POSTGRES_PASSWORD || "postgres",
+        database: process.env.POSTGRES_DB || "stamp-terrain-store",
         entities,
-        migrations: ["./migrations/*.ts"],
+        migrations: ["src/migrations/**/*.ts"],
         synchronize: false,
         cli: {
           migrationsDir: "src/migrations",
         },
       };
 
-console.log(connectionOptions);
 
 const connection: Promise<Connection> = createConnection(connectionOptions);
 export default connection;

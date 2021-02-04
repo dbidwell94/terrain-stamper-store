@@ -1,5 +1,5 @@
-import UserServices from "services/userServices";
-import { validRoles } from "models/role";
+import UserServices from "../services/userServices";
+import { validRoles } from "../models/role";
 
 export const SECRET = process.env.SECRET || "secret";
 

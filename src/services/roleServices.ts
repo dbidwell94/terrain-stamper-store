@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
-import Role, { IRoleMin } from "models/role";
-import { AbstractService, AbstractServiceError } from "services/index";
+import Role, { IRoleMin, validRoles } from "../models/role";
+import { AbstractService, AbstractServiceError } from "../services/index";
 import { Repository } from "typeorm";
 
 class RoleServicesError extends AbstractServiceError {}
@@ -29,5 +29,26 @@ export default class RoleServices extends AbstractService<Role> {
       throw new RoleServicesError(`Role with name ${name} not found`, StatusCodes.NOT_FOUND);
     }
     return role;
+  }
+
+  async seedDatabase(): Promise<void> {
+    try {
+      const roles = (await this.getAll()).map((role) => role.roleName);
+
+      await Promise.resolve(
+        Object.keys(validRoles).forEach(async (role) => {
+          const databaseRole = roles.find((dRole) => dRole === role);
+          if (!databaseRole) {
+            await this.create(({ roleName: role } as unknown) as Role);
+          }
+        })
+      );
+    } catch (e) {
+      await Promise.resolve(
+        Object.keys(validRoles).forEach(async (role) => {
+          await this.create(({ roleName: role } as unknown) as Role);
+        })
+      );
+    }
   }
 }

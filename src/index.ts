@@ -5,9 +5,11 @@ import koa from "koa";
 import httpStatus, { StatusCodes } from "http-status-codes";
 import { Connection } from "typeorm";
 import connection from "./databaseConnection";
-import apiRouter from "controllers/index";
+import apiRouter from "./controllers/index";
 import koaBody from "koa-body";
 import cors from "@koa/cors";
+import RoleServices from "./services/roleServices";
+import Role from "./models/role";
 
 export interface IServerError {
   message: string;
@@ -39,9 +41,12 @@ export let CONNECTION: Connection;
 app.on("error", console.error);
 
 connection
-  .then((con) => {
+  .then(async (con) => {
     CONNECTION = con;
     Object.freeze(CONNECTION);
-    app.listen(PORT);
+    new RoleServices(CONNECTION.getRepository(Role))
+      .seedDatabase()
+      .then(() => app.listen(PORT))
+      .catch(console.error);
   })
   .catch(console.error);

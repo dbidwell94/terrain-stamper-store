@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2017",                         
-    "module": "commonjs",                    
+    "target": "ES6",                         
+    "module": "CommonJS",                    
     "strict": true,                          
     "esModuleInterop": true,                 
     "skipLibCheck": true,                     
@@ -10,23 +10,7 @@
     "outDir": "./dist",
     "rootDir": ".",
     "baseUrl": "./",
-    "paths": {
-      "controllers/*": [
-        "./src/controllers/*"
-      ],
-      "models/*": [
-        "./src/models/*"
-      ],
-      "utils/*": [
-        "./src/utils/*"
-      ],
-      "services/*": [
-        "./src/services/*"
-      ],
-      "src/*": [
-        "./src/*"
-      ]
-    },
+    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "noImplicitAny": true,
     "experimentalDecorators": true,
