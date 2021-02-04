@@ -52,7 +52,7 @@ router.post("/stamp/upload", koaBody({ multipart: true }), async (ctx) => {
     const { name, path } = ctx.request.files.stamp;
 
     console.log({ name, path });
-    const fileName = paths.join(__dirname, "../../stamps", `${uuid()}${name}`);
+    const fileName = paths.join(__dirname, "../../assets", `${uuid()}${name}`);
     fileSystem.copyFileSync(path, fileName);
     fsProm.rm(path);
   }
