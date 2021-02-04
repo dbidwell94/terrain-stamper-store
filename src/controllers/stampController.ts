@@ -45,7 +45,7 @@ router.get("/public/stamp/:id", async (ctx) => {
   ctx.status = StatusCodes.OK;
 });
 
-router.use(jwt({ secret: SECRET }).unless({ path: [/.*\/public\/?.*/] }));
+// router.use(jwt({ secret: SECRET }).unless({ path: [/.*\/public\/?.*/] }));
 
 router.post("/stamp/upload", koaBody({ multipart: true }), async (ctx) => {
   if (ctx.request.files && !Array.isArray(ctx.request.files.stamp)) {
