@@ -1,12 +1,12 @@
 import { Entity, Column, ManyToMany, ManyToOne, OneToMany, JoinTable, JoinColumn } from "typeorm";
 import Auditable, { IAuditable } from "./auditable";
-import Category from "./category";
-import Package from "./package";
+import Category, { getCategoryMin, ICategoryView } from "./category";
+import Package, { getPackageMin, IPackageView } from "./package";
 import Purchase from "./purchase";
 import { IModel } from ".";
 import User from "./user";
 import StampFile, { IStampFileCreate } from "./stampFile";
-import StampPicture from "./stampPicture";
+import StampPicture, { getStampPictureMin, IStampPictureMin } from "./stampPicture";
 
 export interface IStamp extends IAuditable {
   name: string;
@@ -26,8 +26,14 @@ export interface IStamp extends IAuditable {
 export type IStampMin = Omit<IStamp, "folderLocation" | "purchases">;
 
 export type IStampCreate = Pick<IStamp, "name" | "folderLocation" | "price" | "stampType" | "uploadedUser"> & {
-  files: StampFile[] | IStampFileCreate[]
-}
+  files: StampFile[] | IStampFileCreate[];
+};
+
+export type IStampView = Pick<IStamp, "id" | "name" | "isReleased" | "price" | "releaseDate" | "stampType"> & {
+  pictures: IStampPictureMin[];
+  categories: ICategoryView[];
+  package: IPackageView | null;
+};
 
 @Entity()
 export default class Stamp extends Auditable implements IModel {
@@ -64,6 +70,7 @@ export default class Stamp extends Auditable implements IModel {
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
     nullable: true,
+    lazy: true,
   })
   @JoinTable({ name: "stampCategories" })
   categories: Category[];
@@ -80,6 +87,7 @@ export default class Stamp extends Auditable implements IModel {
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
     nullable: true,
+    lazy: true,
   })
   package: Package;
 
@@ -96,6 +104,7 @@ export default class Stamp extends Auditable implements IModel {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
     cascade: true,
+    lazy: true,
   })
   pictures: StampPicture[];
 }
@@ -115,5 +124,26 @@ export function getStampMin(stamp: Stamp): IStampMin {
     uploadedUser: stamp.uploadedUser,
     files: stamp.files,
     pictures: stamp.pictures,
+  };
+}
+
+export async function getStampView(stamp: Stamp): Promise<IStampView> {
+  const resolvedCategories: Category[] = await ((stamp.categories as unknown) as Promise<Category[]>);
+  const resolvedPictures: StampPicture[] = await ((stamp.pictures as unknown) as Promise<StampPicture[]>);
+  const categories: ICategoryView[] = resolvedCategories.map((cat) => getCategoryMin(cat));
+  const pictures: IStampPictureMin[] = resolvedPictures.map((pic) => getStampPictureMin(pic));
+
+  const pkg = await ((stamp.package as unknown) as Promise<Package>);
+
+  return {
+    categories,
+    id: stamp.id,
+    isReleased: stamp.isReleased,
+    name: stamp.name,
+    package: pkg ? getPackageMin(pkg) : null,
+    pictures,
+    price: stamp.price,
+    releaseDate: stamp.releaseDate,
+    stampType: stamp.stampType,
   };
 }

@@ -8,12 +8,14 @@ import { v4 as uuid } from "uuid";
 import * as fileSystem from "fs";
 import fsProm from "fs/promises";
 import paths from "path";
-import jsonWebToken from "jsonwebtoken";
-import jwt from "koa-jwt";
-import { extractFile, SECRET } from "../utils/index";
+import { extractFile } from "../utils/index";
 import UserServices from "../services/userServices";
 import User from "../models/user";
 import StampFile, { extensionsToFileType, IStampFileCreate } from "../models/stampFile";
+import multer from "@koa/multer";
+import checkAuth from "../middleware/validation";
+
+const upload = multer();
 
 class StampControllerError extends Error {
   readonly status: StatusCodes;
@@ -38,25 +40,24 @@ router.use(async (ctx, next) => {
   await next();
 });
 
+router.use(checkAuth({ publicRoutes: [/\/public\/*/] }));
+
 router.get("/public/stamps", async (ctx) => {
-  const stamps = await ctx.state.stampServices.getAll();
+  const stamps = await ctx.state.stampServices.getStamps();
   ctx.body = stamps;
   ctx.status = StatusCodes.OK;
 });
 
 router.get("/public/stamp/:id", async (ctx) => {
   const { id } = ctx.params;
-  const stamp = await ctx.state.stampServices.getById(id);
+  const stamp = await ctx.state.stampServices.getStampMinById(id);
   ctx.body = stamp;
   ctx.status = StatusCodes.OK;
 });
 
-// router.use(jwt({ secret: SECRET }).unless({ path: [/.*\/public\/?.*/] }));
-
 router.post("/stamp/upload", koaBody({ multipart: true }), async (ctx) => {
   if (ctx.request.files && !Array.isArray(ctx.request.files) && !Array.isArray(ctx.request.files.stamp)) {
     const { path, name } = ctx.request.files.stamp;
-
     const body = ctx.request.body;
 
     if (!("stampName" in body) || !("stampType" in body) || !("price" in body)) {

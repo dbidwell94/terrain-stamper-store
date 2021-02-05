@@ -1,11 +1,12 @@
-import Router from "koa-router";
+import Router, { RouterContext, IRouterParamContext } from "koa-router";
 import UserService from "../services/userServices";
 import { StatusCodes } from "http-status-codes";
 import { CONNECTION, IServerError } from "../index";
 import { SECRET, checkPrivileges } from "../utils/index";
 import User, { IUserRegister, IUserUpdate } from "../models/user";
-import jwt from "koa-jwt";
+import checkAuth from "../middleware/validation";
 import jwtSerializer from "jsonwebtoken";
+import { DefaultState, Middleware } from "koa";
 
 class UserControllerError extends Error implements IServerError {
   status: StatusCodes;
@@ -15,14 +16,8 @@ class UserControllerError extends Error implements IServerError {
   }
 }
 
-interface IUserToken {
-  id: number;
-  username: string;
-}
-
 interface IUserController {
   userService: UserService;
-  user: IUserToken;
 }
 
 const router = new Router<IUserController>();
@@ -33,11 +28,7 @@ router.use(async (ctx, next) => {
   await next();
 });
 
-router.use(
-  jwt({ secret: SECRET }).unless({
-    path: [/.*\/login\/?/, /.*\/register\/?/],
-  })
-);
+router.use(checkAuth({ publicRoutes: [/\/register\/?/, /\/login\/?/] }));
 
 //#region Open Routes
 
@@ -102,7 +93,7 @@ router.get("/user/:id", async (ctx) => {
 
 router.put("/user/:id", async (ctx) => {
   const { id: userId } = ctx.params;
-  const { id } = ctx.state.user;
+  const { id } = ctx.user;
   const userMin = ctx.request.body as IUserUpdate;
   if (
     !(await checkPrivileges({

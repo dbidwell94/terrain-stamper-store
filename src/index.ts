@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import koa, { BaseContext } from "koa";
+import koa, { BaseContext, ExtendableContext } from "koa";
 import httpStatus, { StatusCodes } from "http-status-codes";
 import { Connection } from "typeorm";
 import connection from "./databaseConnection";
@@ -13,6 +13,7 @@ import Role from "./models/role";
 import jsonWebToken from "jsonwebtoken";
 import UserServices from "./services/userServices";
 import User from "./models/user";
+import { SECRET } from "./utils";
 
 interface ITokenUser {
   id: number;
@@ -58,12 +59,18 @@ app.use(async (ctx, next) => {
 // Global token auth middleware (add userid and username to context)
 app.use(async (ctx, next) => {
   const bToken = ctx.get("authorization");
-
   if (!bToken) {
     ctx.user = { id: 0, username: "" };
   } else {
     const token = bToken.split(" ")[1];
     const { id, username } = jsonWebToken.decode(token) as ITokenUser;
+
+    try {
+      jsonWebToken.verify(token, SECRET);
+    } catch (err) {
+      throw new ServerError(err.message || "Auth invalid. Please log in again", StatusCodes.FORBIDDEN);
+    }
+
     if (!id || !username) {
       throw new ServerError("Auth invalid. Please log in again", StatusCodes.FORBIDDEN);
     }
@@ -71,7 +78,7 @@ app.use(async (ctx, next) => {
     try {
       await userServices.getById(id);
     } catch (err) {
-      throw new ServerError("Auth invalid, Please log in again", StatusCodes.FORBIDDEN);
+      throw new ServerError("Auth invalid Please log in again", StatusCodes.FORBIDDEN);
     }
     ctx.user = { id, username };
   }

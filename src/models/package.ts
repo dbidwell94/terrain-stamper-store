@@ -5,8 +5,11 @@ import { IModel } from ".";
 
 export interface IPackage extends IAuditable {
   name: string;
+  description: string;
   stamps: Stamp[];
 }
+
+export type IPackageView = Pick<Package, "id" | "name" | "description">;
 
 @Entity()
 export default class Package extends Auditable implements IModel {
@@ -23,4 +26,12 @@ export default class Package extends Auditable implements IModel {
     eager: true,
   })
   stamps: Stamp[];
+}
+
+export function getPackageMin(pkg: Package): IPackageView {
+  return {
+    id: pkg.id,
+    name: pkg.name,
+    description: pkg.description,
+  };
 }
