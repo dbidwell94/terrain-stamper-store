@@ -5,19 +5,29 @@ import Package from "./package";
 import Purchase from "./purchase";
 import { IModel } from ".";
 import User from "./user";
+import StampFile, { IStampFileCreate } from "./stampFile";
+import StampPicture from "./stampPicture";
 
 export interface IStamp extends IAuditable {
   name: string;
   stampType: string;
-  locationUrl: string;
+  folderLocation: string;
   price: number;
+  isReleased: boolean;
+  releaseDate: Date | null;
   uploadedUser: User;
   categories: Category[];
   purchases: Purchase[];
-  package?: Package;
+  package: Package | null;
+  files: StampFile[];
+  pictures: StampPicture[];
 }
 
-export type IStampMin = Omit<IStamp, "locationUrl" | "purchases">;
+export type IStampMin = Omit<IStamp, "folderLocation" | "purchases">;
+
+export type IStampCreate = Pick<IStamp, "name" | "folderLocation" | "price" | "stampType" | "uploadedUser"> & {
+  files: StampFile[] | IStampFileCreate[]
+}
 
 @Entity()
 export default class Stamp extends Auditable implements IModel {
@@ -28,10 +38,16 @@ export default class Stamp extends Auditable implements IModel {
   stampType: string;
 
   @Column({ type: "varchar", nullable: false, unique: true })
-  locationUrl: string;
+  folderLocation: string;
 
   @Column({ type: "decimal", nullable: false })
   price: number;
+
+  @Column({ type: "boolean", nullable: false, default: false })
+  isReleased: boolean;
+
+  @Column({ type: "timestamptz", nullable: true })
+  releaseDate: Date;
 
   @ManyToOne(() => User, (user) => user.uploadedStamps, {
     cascade: true,
@@ -47,6 +63,7 @@ export default class Stamp extends Auditable implements IModel {
     cascade: true,
     onDelete: "SET NULL",
     onUpdate: "CASCADE",
+    nullable: true,
   })
   @JoinTable({ name: "stampCategories" })
   categories: Category[];
@@ -64,8 +81,25 @@ export default class Stamp extends Auditable implements IModel {
     onUpdate: "CASCADE",
     nullable: true,
   })
-  package?: Package;
+  package: Package;
+
+  @OneToMany(() => StampFile, (file) => file.stamp, {
+    eager: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+    cascade: true,
+  })
+  files: StampFile[];
+
+  @OneToMany(() => StampPicture, (picture) => picture.stamp, {
+    eager: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+    cascade: true,
+  })
+  pictures: StampPicture[];
 }
+
 export function getStampMin(stamp: Stamp): IStampMin {
   return {
     id: stamp.id,
@@ -73,8 +107,13 @@ export function getStampMin(stamp: Stamp): IStampMin {
     updatedAt: stamp.updatedAt,
     name: stamp.name,
     price: stamp.price,
+    isReleased: stamp.isReleased,
+    package: stamp.package,
+    releaseDate: stamp.releaseDate,
     stampType: stamp.stampType,
     categories: stamp.categories,
     uploadedUser: stamp.uploadedUser,
+    files: stamp.files,
+    pictures: stamp.pictures,
   };
 }

@@ -1,11 +1,12 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class initial1612423342220 implements MigrationInterface {
-    name = 'initial1612423342220'
+export class initial1612478099225 implements MigrationInterface {
+    name = 'initial1612478099225'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "category" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying NOT NULL, CONSTRAINT "UQ_23c05c292c439d77b0de816b500" UNIQUE ("name"), CONSTRAINT "PK_9c4e4a89e3674fc9f382d733f03" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "package" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying NOT NULL, CONSTRAINT "UQ_b23e12326a4218d09bd72301aa1" UNIQUE ("name"), CONSTRAINT "PK_308364c66df656295bc4ec467c2" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "stamp_file" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "fileLocation" character varying NOT NULL, "stampId" integer, CONSTRAINT "PK_e7659bd2c88174db6589eecc885" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "stamp" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying NOT NULL, "stampType" character varying NOT NULL, "locationUrl" character varying NOT NULL, "price" numeric NOT NULL, "uploadedUserId" integer NOT NULL, "packageId" integer, CONSTRAINT "UQ_25523fadc42c2af909baa4ea5f3" UNIQUE ("locationUrl"), CONSTRAINT "PK_0b2326ba7cef056b0cb0405190f" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "purchase" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "paymentId" character varying NOT NULL, "userId" integer NOT NULL, "stampId" integer NOT NULL, CONSTRAINT "PK_86cc2ebeb9e17fc9c0774b05f69" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "role" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "roleName" character varying NOT NULL, CONSTRAINT "UQ_a6142dcc61f5f3fb2d6899fa264" UNIQUE ("roleName"), CONSTRAINT "PK_b36bcfe02fc8de3c57a8b2391c2" PRIMARY KEY ("id"))`);
@@ -17,6 +18,7 @@ export class initial1612423342220 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "userRoles" ("userId" integer NOT NULL, "roleId" integer NOT NULL, CONSTRAINT "PK_046d21329e72c0aedd207bbcdb1" PRIMARY KEY ("userId", "roleId"))`);
         await queryRunner.query(`CREATE INDEX "IDX_fdf65c16d62910b4785a18cdfc" ON "userRoles" ("userId") `);
         await queryRunner.query(`CREATE INDEX "IDX_5760f2a1066eb90b4c223c16a1" ON "userRoles" ("roleId") `);
+        await queryRunner.query(`ALTER TABLE "stamp_file" ADD CONSTRAINT "FK_5180a04f6671acb46316c1b4a55" FOREIGN KEY ("stampId") REFERENCES "stamp"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "stamp" ADD CONSTRAINT "FK_ded962a0328a91091cfd21e6e27" FOREIGN KEY ("uploadedUserId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE`);
         await queryRunner.query(`ALTER TABLE "stamp" ADD CONSTRAINT "FK_b4252c7acd8ded55cc7bae8521e" FOREIGN KEY ("packageId") REFERENCES "package"("id") ON DELETE SET NULL ON UPDATE CASCADE`);
         await queryRunner.query(`ALTER TABLE "purchase" ADD CONSTRAINT "FK_33520b6c46e1b3971c0a649d38b" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE`);
@@ -36,6 +38,7 @@ export class initial1612423342220 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "purchase" DROP CONSTRAINT "FK_33520b6c46e1b3971c0a649d38b"`);
         await queryRunner.query(`ALTER TABLE "stamp" DROP CONSTRAINT "FK_b4252c7acd8ded55cc7bae8521e"`);
         await queryRunner.query(`ALTER TABLE "stamp" DROP CONSTRAINT "FK_ded962a0328a91091cfd21e6e27"`);
+        await queryRunner.query(`ALTER TABLE "stamp_file" DROP CONSTRAINT "FK_5180a04f6671acb46316c1b4a55"`);
         await queryRunner.query(`DROP INDEX "IDX_5760f2a1066eb90b4c223c16a1"`);
         await queryRunner.query(`DROP INDEX "IDX_fdf65c16d62910b4785a18cdfc"`);
         await queryRunner.query(`DROP TABLE "userRoles"`);
@@ -47,6 +50,7 @@ export class initial1612423342220 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "role"`);
         await queryRunner.query(`DROP TABLE "purchase"`);
         await queryRunner.query(`DROP TABLE "stamp"`);
+        await queryRunner.query(`DROP TABLE "stamp_file"`);
         await queryRunner.query(`DROP TABLE "package"`);
         await queryRunner.query(`DROP TABLE "category"`);
     }

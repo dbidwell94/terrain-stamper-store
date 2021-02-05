@@ -118,3 +118,4 @@ dist
 
 server_data/
 pgdata/
+assets/*

@@ -14,6 +14,7 @@ export abstract class AbstractControllerError extends Error {
 const apiRouter = new Router({ prefix: "/api" });
 
 apiRouter.get("/", async (ctx) => {
+  console.log(ctx.user);
   ctx.body = { status: "online" };
   ctx.status = StatusCodes.OK;
 });

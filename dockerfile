@@ -1,3 +1,5 @@
+ARG ENV
+
 FROM node:15
 
 WORKDIR /usr/src/app/

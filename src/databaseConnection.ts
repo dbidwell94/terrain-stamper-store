@@ -7,8 +7,10 @@ import Stamp from "../src/models/stamp";
 import Package from "../src/models/package";
 import Company from "../src/models/company";
 import Purchase from "../src/models/purchase";
+import StampFile from "./models/stampFile";
+import StampPicture from "./models/stampPicture";
 
-const entities = [User, Role, Category, Stamp, Package, Company, Purchase];
+const entities = [User, Role, Category, Stamp, Package, Company, Purchase, StampFile, StampPicture];
 
 export const connectionOptions: ConnectionOptions =
   process.env.NODE_ENV === "development"
@@ -41,7 +43,6 @@ export const connectionOptions: ConnectionOptions =
           migrationsDir: "src/migrations",
         },
       };
-
 
 const connection: Promise<Connection> = createConnection(connectionOptions);
 export default connection;
