@@ -3,6 +3,7 @@ import { IAuthState, IAuthAction, authTypes } from './types';
 const initialState: IAuthState = {
   authModalOpen: false,
   currentUser: null,
+  token: null,
 };
 
 export default function (state = initialState, action: IAuthAction): IAuthState {
@@ -12,6 +13,9 @@ export default function (state = initialState, action: IAuthAction): IAuthState 
 
     case authTypes.SET_CURRENT_USER:
       return { ...state, currentUser: action.payload };
+
+    case authTypes.SET_TOKEN:
+      return { ...state, token: action.payload };
 
     default:
       return state;

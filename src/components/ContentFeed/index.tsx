@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 const ContentFeedContainer = styled.div`
@@ -15,6 +15,7 @@ interface IContentFeedProps {
 }
 
 export default function ContentFeed({ className }: IContentFeedProps) {
+
   return (
     <ContentFeedContainer className={className}>
       <h1>Content Feed</h1>

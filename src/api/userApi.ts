@@ -1,5 +1,5 @@
-import ApiClient from '.';
-import jwt from 'jsonwebtoken';
+import ApiClient from './index';
+import { decodeToken } from 'react-jwt';
 
 export interface IRole {
   id: number;
@@ -39,7 +39,7 @@ export default class UserApiClient extends ApiClient {
     const { token } = (await this.axios.post<ILoginResponse>('/api/users/login', { username, password })).data;
     this.saveJwt(token);
     this.axios = this.buildAxios();
-    const { id } = jwt.decode(token) as IDecodedToken;
+    const { id } = decodeToken(token) as IDecodedToken;
     return await this.getUserById(id);
   }
 
@@ -51,7 +51,7 @@ export default class UserApiClient extends ApiClient {
     const { token } = (await this.axios.post<ILoginResponse>('/api/users/register', options)).data;
     this.saveJwt(token);
     this.buildAxios();
-    const { id } = jwt.decode(token) as IDecodedToken;
+    const { id } = decodeToken(token) as IDecodedToken;
     return await this.getUserById(id);
   }
 }
