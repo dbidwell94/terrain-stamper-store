@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Sidebar from './Sidebar';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import FilterBar from './FilterBar';
+import ContentFeed from './ContentFeed';
+import { useSelector } from 'react-redux';
+import AuthModal from './AuthModal';
 
 const HomePage = styled.div`
   display: grid;
@@ -9,38 +13,18 @@ const HomePage = styled.div`
   width: 100%;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(6, 1fr);
-  .filter-bar {
-    grid-column: 2 / 6;
-    grid-row: 1 / 1;
-    border: thin solid black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .content-feed {
-    grid-column: 2 / 6;
-    grid-row: 2 / 7;
-    border: thin solid green;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .sidebar {
-
-  }
 `;
 
 export default function App() {
+  const { authModalOpen } = useSelector((state) => state.authReducer);
+
   return (
     <Router>
       <HomePage>
-        <div className='filter-bar'>
-          <h1>Filter Bar</h1>
-        </div>
-        <div className='content-feed'>
-
-        </div>
-        <Sidebar className=""/>
+        {authModalOpen && <AuthModal />}
+        <FilterBar />
+        <ContentFeed />
+        <Sidebar />
       </HomePage>
     </Router>
   );
