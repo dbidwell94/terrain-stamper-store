@@ -6,9 +6,24 @@ services:
     container_name: database
     image: postgres:latest
     restart: always
+    expose: 
+      - "5432"
+    ports:
+      - "5432:5432"
     env_file: "prod.env"
     volumes: 
       - ./pgdata:/var/lib/postgresql/data
+
+  adminer:
+    container_name: adminer
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on: 
+      - database
+    environment: 
+      ADMINER_DEFAULT_SERVER: database
 
   web:
     container_name: web

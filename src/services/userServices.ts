@@ -116,4 +116,24 @@ export default class UserServices extends AbstractService<User> {
     const updated = await this.repository.save(newUser);
     return getUserMinimum(updated);
   }
+
+  async seedDatabase(): Promise<void> {
+    const userCount = await this.repository.createQueryBuilder().getCount();
+    if (userCount === 0) {
+      const adminUsername = process.env.ADMIN_USERNAME as string;
+      const adminPassword = process.env.ADMIN_PASSWORD as string;
+      const adminEmail = process.env.ADMIN_EMAIL as string;
+
+      const roleServices = new RoleServices(CONNECTION.getRepository(Role));
+      const adminRole = await roleServices.getByName("ADMIN");
+      const userRole = await roleServices.getByName("USER");
+
+      await this.createUser({
+        email: adminEmail,
+        password: adminPassword,
+        username: adminUsername,
+        roles: [adminRole, userRole],
+      });
+    }
+  }
 }

@@ -96,9 +96,9 @@ connection
   .then(async (con) => {
     CONNECTION = con;
     Object.freeze(CONNECTION);
-    new RoleServices(CONNECTION.getRepository(Role))
-      .seedDatabase()
-      .then(() => app.listen(PORT))
-      .catch(console.error);
+    await new RoleServices(CONNECTION.getRepository(Role)).seedDatabase();
+    await new Promise((res) => setTimeout(res, 1000));
+    await new UserServices(CONNECTION.getRepository(User), User).seedDatabase();
+    app.listen(PORT);
   })
   .catch(console.error);
