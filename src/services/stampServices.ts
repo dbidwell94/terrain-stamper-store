@@ -1,3 +1,4 @@
+import StampPicture from "src/models/stampPicture";
 import Stamp, { getStampView, IStampView } from "../models/stamp";
 import { AbstractService } from "./index";
 
@@ -20,6 +21,14 @@ export default class StampServices extends AbstractService<Stamp> {
       .select()
       .limit(limit || 50)
       .getMany();
+
+    const toReturn = stamps.map((stamp) => getStampView(stamp));
+
+    return await Promise.all(toReturn);
+  }
+
+  async getStampsByUploadedUserId(id: number): Promise<IStampView[]> {
+    const stamps = await this.repository.createQueryBuilder().select().where({ uploadedUser: id }).getMany();
 
     const toReturn = stamps.map((stamp) => getStampView(stamp));
 

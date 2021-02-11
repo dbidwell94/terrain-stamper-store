@@ -1,6 +1,7 @@
 import Router from "koa-router";
 import UserController from "./userController";
 import StampController from "./stampController";
+import PictureController from "./pictureController";
 import { StatusCodes } from "http-status-codes";
 
 export abstract class AbstractControllerError extends Error {
@@ -20,7 +21,11 @@ apiRouter.get("/", async (ctx) => {
 
 apiRouter.use("/users", UserController.routes());
 apiRouter.use(UserController.allowedMethods());
+
 apiRouter.use("/stamps", StampController.routes());
 apiRouter.use(StampController.allowedMethods());
+
+apiRouter.use("/pictures", PictureController.routes());
+apiRouter.use(PictureController.allowedMethods());
 
 export default apiRouter;

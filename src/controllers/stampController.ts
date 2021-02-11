@@ -14,6 +14,7 @@ import User from "../models/user";
 import StampFile, { extensionsToFileType, IStampFileCreate } from "../models/stampFile";
 import multer from "@koa/multer";
 import checkAuth from "../middleware/validation";
+import StampPicture, { IStampPictureCreate, validExtensions } from "../models/stampPicture";
 
 const upload = multer();
 
@@ -24,8 +25,6 @@ class StampControllerError extends Error {
     this.status = status;
   }
 }
-
-const pathToFileRegex = /([^\/]+$)/;
 
 interface IStampServiceProvider {
   stampServices: StampServices;
@@ -52,6 +51,27 @@ router.get("/public/stamp/:id", async (ctx) => {
   const { id } = ctx.params;
   const stamp = await ctx.state.stampServices.getStampMinById(id);
   ctx.body = stamp;
+  ctx.status = StatusCodes.OK;
+});
+
+/**
+ * ---Private routes---
+ */
+
+router.get("/stamps/byuser/:id", async (ctx) => {
+  const { id } = ctx.params;
+  const stamps = await ctx.state.stampServices.getStampsByUploadedUserId(id);
+
+  ctx.body = stamps;
+  ctx.status = StatusCodes.OK;
+});
+
+router.get("/stamps/mystamps", async (ctx) => {
+  const { id } = ctx.user;
+
+  const stamps = await ctx.state.stampServices.getStampsByUploadedUserId(id);
+
+  ctx.body = stamps;
   ctx.status = StatusCodes.OK;
 });
 
@@ -84,6 +104,8 @@ router.post("/stamp/upload", koaBody({ multipart: true }), async (ctx) => {
 
     const filesToSave: IStampFileCreate[] = [];
 
+    const picsToSave: IStampPictureCreate[] = [];
+
     const uploadedUser = await ctx.state.userServices.getById(ctx.user.id);
 
     const stamp: IStampCreate = {
@@ -94,19 +116,29 @@ router.post("/stamp/upload", koaBody({ multipart: true }), async (ctx) => {
       uploadedUser,
       files: [],
     };
-    // Loop over files and add to StampFile[]
-    for (let i = 0; i < extractedFiles.length; i++) {
-      const fileExtension = extractedFiles[i].split(".").pop() as string;
-      filesToSave.push({
-        fileType: extensionsToFileType[fileExtension],
-        stamp,
-        fileLocation: extractedFiles[i],
-      });
-    }
 
     const databaseStamp = await ctx.state.stampServices.create((stamp as unknown) as Stamp);
 
+
+    // Loop over files and add to StampFile[] and StampPicture[]
+    for (let i = 0; i < extractedFiles.length; i++) {
+      const fileExtension = extractedFiles[i].split(".").pop() as string;
+      if (validExtensions.includes(fileExtension)) {
+        picsToSave.push({
+          fileLocation: extractedFiles[i],
+          stamp: databaseStamp,
+        });
+      } else {
+        filesToSave.push({
+          fileType: extensionsToFileType[fileExtension],
+          stamp: databaseStamp,
+          fileLocation: extractedFiles[i],
+        });
+      }
+    }
+
     databaseStamp.files = (filesToSave as unknown) as StampFile[];
+    databaseStamp.pictures = (picsToSave as unknown) as StampPicture[];
 
     await ctx.state.stampServices.create(databaseStamp);
 

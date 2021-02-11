@@ -103,8 +103,7 @@ export default class Stamp extends Auditable implements IModel {
     eager: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
-    cascade: true,
-    lazy: true,
+    cascade: true
   })
   pictures: StampPicture[];
 }
