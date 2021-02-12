@@ -1,1 +1,3 @@
-export interface IModel {}
+export interface IModel {
+    id: any
+}

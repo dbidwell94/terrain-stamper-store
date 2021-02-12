@@ -15,6 +15,14 @@ export default class StampServices extends AbstractService<Stamp> {
     return getStampView(stamp);
   }
 
+  async getStampsMin(limit?: number): Promise<IStampView[]> {
+    const stamps = await this.repository.find({loadEagerRelations: true});
+
+    const minStamps = stamps.map(stamp => getStampView(stamp));
+
+    return Promise.all(minStamps);
+  }
+
   async getStamps(limit?: number): Promise<IStampView[]> {
     const stamps = await this.repository
       .createQueryBuilder()

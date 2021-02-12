@@ -49,6 +49,6 @@ export abstract class AbstractService<T extends IModel> implements IService<T> {
   async create(toAdd: T): Promise<T> {
     const toReturn = await this.repository.save(toAdd);
 
-    return toAdd;
+    return toReturn;
   }
 }

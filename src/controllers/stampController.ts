@@ -42,7 +42,7 @@ router.use(async (ctx, next) => {
 router.use(checkAuth({ publicRoutes: [/\/public\/*/] }));
 
 router.get("/public/stamps", async (ctx) => {
-  const stamps = await ctx.state.stampServices.getStamps();
+  const stamps = await ctx.state.stampServices.getStampsMin();
   ctx.body = stamps;
   ctx.status = StatusCodes.OK;
 });
@@ -119,7 +119,6 @@ router.post("/stamp/upload", koaBody({ multipart: true }), async (ctx) => {
 
     const databaseStamp = await ctx.state.stampServices.create((stamp as unknown) as Stamp);
 
-
     // Loop over files and add to StampFile[] and StampPicture[]
     for (let i = 0; i < extractedFiles.length; i++) {
       const fileExtension = extractedFiles[i].split(".").pop() as string;
@@ -142,7 +141,7 @@ router.post("/stamp/upload", koaBody({ multipart: true }), async (ctx) => {
 
     await ctx.state.stampServices.create(databaseStamp);
 
-    ctx.body = await ctx.state.stampServices.getById(databaseStamp.id);
+    ctx.body = { stampId: databaseStamp.id };
     ctx.status = StatusCodes.CREATED;
   } else {
     throw new StampControllerError("No file found", StatusCodes.BAD_REQUEST);
