@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import Router from "koa-router";
-import Stamp, { IStampCreate } from "../models/stamp";
+import Stamp, { IStampCreate, IStampView } from "../models/stamp";
 import StampServices from "../services/stampServices";
 import { CONNECTION } from "../index";
 import koaBody from "koa-body";
@@ -42,7 +42,26 @@ router.use(async (ctx, next) => {
 router.use(checkAuth({ publicRoutes: [/\/public\/*/] }));
 
 router.get("/public/stamps", async (ctx) => {
-  const stamps = await ctx.state.stampServices.getStampsMin();
+  let stamps: IStampView[];
+
+  if (ctx.user.id !== 0) {
+    const databaseUser = await ctx.state.userServices.getById(ctx.user.id);
+    const isAdmin = databaseUser.roles.reduce<boolean>((isAdmin, role) => {
+      if (!isAdmin) {
+        return role.roleName.toLowerCase() === "admin";
+      }
+      return isAdmin;
+    }, false);
+
+    if (isAdmin) {
+      stamps = await ctx.state.stampServices.getStampsMin({ adminUserId: ctx.user.id });
+    } else {
+      stamps = await ctx.state.stampServices.getStampsMin({});
+    }
+  } else {
+    stamps = await ctx.state.stampServices.getStampsMin({});
+  }
+
   ctx.body = stamps;
   ctx.status = StatusCodes.OK;
 });
