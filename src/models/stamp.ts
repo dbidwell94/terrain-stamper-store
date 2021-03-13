@@ -103,7 +103,7 @@ export default class Stamp extends Auditable implements IModel {
     eager: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
-    cascade: true
+    cascade: true,
   })
   pictures: StampPicture[];
 }
@@ -127,7 +127,6 @@ export function getStampMin(stamp: Stamp): IStampMin {
 }
 
 export async function getStampView(stamp: Stamp): Promise<IStampView> {
-  console.log(stamp.pictures)
   const resolvedCategories: Category[] = await ((stamp.categories as unknown) as Promise<Category[]>);
   const resolvedPictures: StampPicture[] = await ((stamp.pictures as unknown) as Promise<StampPicture[]>);
   const categories: ICategoryView[] = resolvedCategories.map((cat) => getCategoryMin(cat));

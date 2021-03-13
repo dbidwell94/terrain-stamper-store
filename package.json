@@ -22,6 +22,17 @@
   "keywords": [],
   "author": "",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=14"
+  },
+  "contributors": [
+    {
+      "email": "dbidwell94@gmail.com",
+      "name": "Devin Bidwell",
+      "url": "https://biddydev.com"
+    }
+  ],
+  "homepage": "https://terrainstamper.biddydev.com",
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/multer": "^3.0.0",

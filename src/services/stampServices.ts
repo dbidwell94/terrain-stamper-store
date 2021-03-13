@@ -16,9 +16,13 @@ export default class StampServices extends AbstractService<Stamp> {
   }
 
   async getStampsMin(limit?: number): Promise<IStampView[]> {
-    const stamps = await this.repository.find({loadEagerRelations: true});
+    const stamps = await this.repository.find({
+      where: { isReleased: true },
+      order: { releaseDate: "DESC" },
+      loadEagerRelations: true,
+    });
 
-    const minStamps = stamps.map(stamp => getStampView(stamp));
+    const minStamps = stamps.map((stamp) => getStampView(stamp));
 
     return Promise.all(minStamps);
   }
@@ -36,7 +40,11 @@ export default class StampServices extends AbstractService<Stamp> {
   }
 
   async getStampsByUploadedUserId(id: number): Promise<IStampView[]> {
-    const stamps = await this.repository.createQueryBuilder().select().where({ uploadedUser: id }).getMany();
+    // const stamps = await this.repository.createQueryBuilder().select().where({ uploadedUser: id }).getMany();
+    const stamps = await this.repository.find({
+      where: { uploadedUser: id },
+      loadEagerRelations: true,
+    });
 
     const toReturn = stamps.map((stamp) => getStampView(stamp));
 
